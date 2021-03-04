@@ -1,0 +1,393 @@
+\documentclass[11pt]{extarticle}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{lmodern}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{dialogue}
+\usepackage{pdfpages}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\renewcommand{\algorithmicend}{\textbf{fin}}
+\renewcommand{\algorithmicif}{\textbf{Si}}
+\renewcommand{\algorithmicthen}{\textbf{Alors}}
+\renewcommand{\algorithmicelse}{\textbf{Sinon}}
+\renewcommand{\algorithmicfor}{\textbf{Pour}}
+\renewcommand{\algorithmicforall}{\textbf{Pour chaque}}
+\renewcommand{\algorithmicdo}{\textbf{faire}}
+\renewcommand{\algorithmicwhile}{\textbf{Tant que}}
+\renewcommand{\algorithmicreturn}{\textbf{Retourner}}
+
+
+\def\C{\mathbb{C}}
+ \parskip 5mm
+ \parindent 5mm
+ \definecolor{Green}{RGB}{20,127,50}
+ \definecolor{Red}{RGB}{150,50,50}
+\definecolor{orange}{rgb}{0,0.6,0}
+\definecolor{blue}{rgb}{0.1,0.2,0.6}
+\definecolor{mauve}{rgb}{0.58,0.5,0.62}
+ 
+ \hypersetup{
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=blue,          % color of internal links (change box color with linkbordercolor)
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+ 
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C++,
+  showstringspaces=false,
+  tabsize=2,
+  basicstyle=\footnotesize,
+  keywordstyle=\bfseries\color{Green},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+  commentstyle=\footnotesize\ttfamily\color{mauve},
+}
+
+
+\newcommand{\intervalle}[2]{\mathopen{[}#1\,;#2\mathclose{]}}
+\newcommand{\reelplus}{$\mathopen{[}0\,;+\infty\mathclose{[}$}
+\newcommand{\reelmoins}{$\mathopen{]}-\infty\,;0\mathclose{]}$}
+\newcommand{\reel}{$\mathopen{]}-\infty\,;+\infty\mathclose{[}$}
+\author{\textcolor{Green}{Firegreen}}
+\title{\textcolor{Green}{\textbf{Maths}}}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+ \geometry{top=20mm, bottom=15mm, left=30mm , right=25mm}
+\begin{document}
+\begin{minipage}[t]{0.35\paperwidth}
+\begin{flushleft}
+\raisebox{-0.5\height}{\includegraphics[width=0.15\paperwidth]{imac}}
+\end{flushleft}
+\end{minipage}
+\begin{minipage}[t]{0.35\paperwidth}
+\begin{flushright}
+\noindent \Huge{Algorithmique Avancé} \\
+\noindent \LARGE{TP 2} \\
+\noindent \Large{Récursivité, Liste et Complexité}
+\end{flushright}
+\end{minipage}\\
+\begin{center}
+\rule{\textwidth}{0.2cm}
+\end{center}
+\vspace{1cm}
+Durant ce TP, nous allons faire un rappel sur la recursivité et les listes et d'étudier la notion de complexité.
+\section{Récursivité}
+Un algorithme récursif est un algorithme qui fait appel à lui même.\\
+"C'est tout ? Bah c'est pas si compliqué, allez salut."\\
+"Hopopop ptit malin, c'est pas aussi simple alors ramène toi."\\
+La méthode récursive est souvent un autre moyen de voir un problème. Plutôt que de passer par une boucle itératif tel qu'un \textit{\textbf{for}} ou un \textit{\textbf{while}}, on appel le même algorithme avec des paramètres différents pour répéter plusieurs fois les mêmes instructions mais dans un contexte qui évolue.\\
+Exemple:
+\begin{center}
+\begin{algorithm}[h]
+\caption{Recursive Sum}\label{recursive_sum}
+\begin{algorithmic} % enter the algorithmic environment
+    \Function{sum}{\textit{n}: entier}
+    	\If{\textit{n} > 1}
+    		\State \Return \textit{n} + \textsc{sum}($\textit{n} - 1$)
+    	\EndIf
+    	\State \Return n
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+Cet algorithme fait la somme de 1 jusqu'à $n$. On peut voir le problème ainsi:
+\begin{align*}
+sum &= \sum_1^n \\
+sum &= \sum_1^{n-1} + n \\
+sum &= \sum_1^{n-2} + (n-1) + n \\
+...
+\end{align*}
+On obtient ainsi une récursion. Pour résoudre le problème au niveau $n$, il faut résoudre le problème au niveau inférieur.\\
+\textbf{Attention:} Pour concevoir un algorithme récursif qui fonctionne, il faut penser:
+\begin{itemize}
+\item À la condition d'arrêt, une condition qui va retourner un résultat sans faire appel à la fonction, pour éviter une récursion infinie
+\item À l'itération, un changement dans les paramètres lors de l'appel de la fonction, pour éviter d'appeler la fonction dans le même context, ce qui causerait aussi une récursion infini
+\end{itemize}
+La \textit{"Call Stack"} ou la pile d'appels, c'est l'ensemble des fonctions qui sont appelés par votre programme à un instant t. Elle commence par la fonction main, qui appelait une autre fonction qui elle même peut appeler une autre fonction et ainsi de suite. Chaque fois qu'une fonction se termine, la pile d'appels se dépile et rend la main à la fonction précédente.\\
+Il est facile d'arriver à un \textit{"Stack Overflow"} lorsqu'on implémente une fonction récursive, cela veut dire que le système ne peut pas empiler plus d'appels de fonctions. Pensez bien aux deux ci-dessus lors de votre implémentation.
+\section{Liste, Pile et File}
+Un \textbf{tableau} en \verb!C/C++! se traduit par la réservation d'un emplacement mémoire assez grand pour y stocker l'ensemble des données que vous voulez traiter. Cet emplacement mémoire est segmenté en plusieurs petites cases qui se suivent, cela permet d'accéder rapidement à une case donnée, il suffit d'ajouter l'indice de cette case à l'adresse de la première case. L'inconvénient en revanche c'est l'aspect statique de la structure, une fois la taille défini, redéfinir la taille est couteux. Les \textbf{listes chaînées} sont là pour répondre au besoin d'avoir une quantité de données dynamiques.\\
+Une \textbf{liste chaînée} est une façon de stocker un ensemble de données qui consiste à disperser les données sur des emplacements mémoires discontinus et de rajouter une donnée dans chacune de ces zones mémoires pour retrouver la "case" suivante (exemple: un pointeur en \verb!C/C++!).
+\begin{center}
+\includegraphics[width=0.7\textwidth]{liste2}
+\end{center}
+\subsection{Pile/File ou LIFO/FIFO}
+Les \textbf{piles} et les \textbf{files} sont plus des façons de traiter des données plutôt que des façons de les stocker. \\
+Une \textbf{pile}(peu importe sa façon de stocker) va restreindre l'accès aux données en ne donnant que la dernière valeur qu'il a stocké. Lorsqu'il donne la dernière valeur, il dépile les données, permettant ainsi de donner accès à l'avant-dernière valeur stockée puis l'avant-avant-dernière etc. etc.. C'est un \textbf{LIFO}, \textbf{L}ast \textit{I}n \textit{F}irst \textbf{O}ut.
+Une \textbf{file}, lui, va restreindre l'accès aux données en ne donnant que la première valeur qu'il a stocké. Une fois la première valeur donnée, il défile les données, permettant ainsi de donner accès à la deuxième valeur stockée et vous connaissez la suite. C'est un \textbf{FIFO}, \textbf{F}irst \textit{I}n \textit{F}irst \textbf{O}ut.
+\newpage
+\section{Complexité d'un algorithme}
+\subsection{Keskesé ?}
+Pour mesurer l'efficacité d'un programme on mesure à quelle il résout un problème. Cependant, les ordinateurs exécute les programmes à des vitesses différentes, il arrive même qu'un ordinateur exécute le même programme à des vitesses différentes. On mesure donc cette vitesse en déterminant le nombre d'instructions exécutées selon le nombre d'élément à traiter.\\
+Prenons l'algorithme suivant:
+\begin{center}
+\begin{algorithm}
+\caption{Sum of square odd}\label{sum_of_square_odd}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{t} $\Leftarrow $ tableau de $n$ nombre aléatoire
+    \State \textit{sum} $\Leftarrow $ 0
+    \ForAll{valeur \textit{v} de \textit{t}}
+            \If{v est impaire}
+            	\State \textit{sum} $\Leftarrow $ $v \times v$
+			\EndIf            
+    \EndFor
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+Pour un tableau de $n$ nombre on effectue un test et une multiplication $\Rightarrow$ on effectue donc $2 \times n$ instructions. \\
+Si $f(n)$ est le nombre d'instruction étant donné un nombre $n$ d'élément, on note la \textbf{complexité d'un programme} $O(g(n))$ tel qu'il existe $C > 0$ et $n_0 > 0$ pour lesquels $f(n) \leq C.g(n)$. Pour faire simple il s'agit d'un \textbf{ordre de grandeur}. \\
+Dans notre exemple a une complexité en $O(n) \Leftrightarrow f(n)=2n, g(n)=n, C=3, n_0=0$\\
+\newpage
+\subsection{Exemple}
+\begin{center}
+\begin{algorithm}
+\caption{Polynome evaluation}\label{polynome_eval}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{coeff} $\Leftarrow $ tableau de $n$ coefficient
+    \State \textit{powerValues} $\Leftarrow $ tableau de $n$ puissances
+    \State \textit{x} $\Leftarrow $ abscisse du point
+    \State \textit{sum} $\Leftarrow $ 0
+    \ForAll{\textit{indice} $i$ de \textit{coeff}}
+    		\State \textit{poweredX} $\Leftarrow$ \textit{x}   
+    		\For{\textit{j} allant de $1$ à \textit{powerValues[i]}}
+    			\State \textit{poweredX} $\Leftarrow$ \textit{poweredX} $\times$ \textit{x}
+    		\EndFor
+    		\State \textit{sum} $\Leftarrow$ \textit{sum} + \textit{coeff[i]} $\times$ \textit{poweredX}                
+    \EndFor
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+Cet algorithme évalue un polynome en un point, supposons que les puissances soient rangées dans l'ordre allant de 1 à n. La puissance de x nécessite $1$ instruction, puis $2$, ... et ainsi de suite jusqu'à n. Le nombre d'instruction est donc égale à:
+\begin{align*}
+	f(n) &= \sum_{i=0}^n+2n\\
+	f(n) &= \frac{n(n+1)}{2}+2n
+\end{align*}
+L'ordre de grandeur est de $n^2$, la complexité de ce programme est donc $O(n^2)$ \\
+Une version améliorée du programme multiplierai la puissance précédente avec x pour obtenir la puissance courante:
+\begin{center}
+\begin{algorithm}
+\caption{Better polynome evaluation}\label{better_polynome_eval}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{coeff} $\Leftarrow $ tableau de $n$ coefficient
+    \State \textit{powerValues} $\Leftarrow $ tableau de $n$ puissances
+    \State \textit{x} $\Leftarrow $ abscisse du point
+    \State \textit{sum} $\Leftarrow $ 0
+    \State \textit{poweredX} $\Leftarrow$ 1
+    \ForAll{\textit{indice} $i$ de \textit{coeff}}
+    		\State \textit{poweredX} $\Leftarrow$ \textit{poweredX} $\times$ \textit{x}
+    		\State \textit{sum} $\Leftarrow$ \textit{sum} + \textit{coeff[i]} $\times$ \textit{poweredX}                
+    \EndFor
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+Avec cette amélioration on obtient un nombre instruction égale à $3n$ $\Rightarrow$ La complexité est donc de $O(n)$. 
+\subsection{Notations}
+Le nombre d'instruction peut varier d'une exécution à un autre. On mesure la complexité $O$ en determinant le nombre d'instruction maximum autrement-dit le pire cas. Mais on peut aussi calculer le nombre d'instructions moyen qu'on note $\Theta$ et minimum $\Omega$
+\subsection{Temps d'exécution}
+La plupart des algorithmes qui traitent un ensemble d'élément peuvent être classés selon leur temps d'exécution:
+\begin{itemize}
+\item[\textbf{Constant}]: Complexité en $O(1)$, le nombre d'instruction reste le même peut importe le nombre d'élément à traiter. Exemple: la structure de données $std::unordered_map$ en C++ permet de chercher et d'insérer des éléments en un temps constant. Pour chaque élément du tableau, la structure enregistre une clé d'indexage qui permet de déterminer l'adresse mémoire où l'élément est rangé.
+\item[\textbf{Logarithmique}]: Complexité en $O(log_2(n))$, l'algorithme continue tant que le nombre d'élément à traiter est divisible par 2. Exemple: La recherche dichotomique, on regarde où se situe l'élément à chercher par rapport à la moitié tableau et on réitère cette recherche dans la partie inférieur ou supérieur du tableau jusqu'à trouver l'élément.
+\item[\textbf{Linéaire}]: Complexité en $O(n)$. Exemple: Recherche Séquentielle, on teste chaque case du tableau pour trouver notre élément.
+\item[\textbf{Quasi-linéaire}]: Complexité en $O(n log_2(n))$. Exemple: Le tri rapide ou tri par fusion.
+\item[\textbf{Polynomial}]: Complexité en $O(n^k)$. Exemple: Le tri à bulle avec une complexité de $O(n^2)$
+\item[\textbf{Exponentiel rapide}]: Complexité en $O(c^{log(n)})$.
+\item[\textbf{Exponentiel}]: Complexité en $O(c^n)$.
+\item[\textbf{Factoriel}]: Complexité en $O(n!) \equiv O(n^n)$.
+\end{itemize}
+\vspace{1cm}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.35\textwidth]{complexity_graph}
+\end{center}
+\caption{Complexities}
+\end{figure}
+\newpage
+\section{TP}
+\subsection{Programmation}
+\noindent Le dossier \_TP1/TP contient un dossier \textit{C++}. Vous trouverez dans ce dossier des fichiers \textit{exo<i>.pro} à ouvrir avec \textit{QtCreator}, chacun de ces fichiers projets sont associés à un fichier \textit{exo<i>.cpp} à compléter pour implémenter les différentes fonctions ci-dessus. Le fichier \textit{exo0.cpp} est un exemple d'implémentation de fonction récursive.
+\paragraph{Notes:} 
+\begin{itemize}
+\item L'objet $Context$ est présent au début des fonctions récursives afin de d'enregistrer l'appel de la fonction et d'afficher l'appel dans la fenêtre. 
+\item L'instruction $return\_and\_display$ permet d'enregistrer la fin de la fonction et d'afficher le résultat de la fonction. Vous pouvez toutefois utiliser l'instruction \textbf{$return$} normal.
+\item La classe $QVector2D$ est implémenté dans le framework Qt pour décrire un point.
+\begin{center}
+\begin{lstlisting}[style=customc, escapechar=@]
+	QVector2D point;
+	float x = point.x(); // return the component x of point
+	float y = point.y(); // return the component y of point
+	point.setX(float value); // set a new value to the component x
+	point.setY(float value); // set a new value to the component y
+	point.length(); // return the module/length of point
+\end{lstlisting}
+\end{center}
+\end{itemize}
+Le type $Array$ implémente des fonctions d'accès et de modifications de tableau tel que get(), insert(), set()...
+\begin{center}
+\begin{lstlisting}[style=customc, escapechar=@]
+
+void sort(Array& toSort)
+{	
+	int firstNumber = toSort.get(0); // get the first number of the array toSort
+	int lastNumber = toSort.get(toSort.size()-1); // get the last number of the array toSort
+	if (firstNumber > lastNumber)
+		toSort.swap(0, toSort.size()-1); // swap between the first index and the last
+	printf("I think it's sorted");
+}
+
+\end{lstlisting}
+\begin{lstlisting}[style=customc, escapechar=@]
+	
+	Array array(int size); // Array array(10) --> make an array of 10 numbers intialized to -1;
+	array.get(int index); // array.get(2) --> get the number at index 2
+	array[int index]; // equivalent to get()
+	array.set(int index, int value); // array.set(2, 10) --> set 10 into the 2nd case of array
+	array.swap(int index1, int index2); // array.swap(2,5) --> swap the 2nd and the 5th case of array
+	array.insert(int index, int value); // array.set(2, 10) --> insert 10 into the 2nd case of array by shifting the all next numbers	 
+	
+\end{lstlisting}
+\end{center}
+\noindent Implémenter les fonctions suivantes à l'aide d'un algorithme récursif:
+\begin{itemize}
+\item[ - \textbf{power}(int $value$, int $n$)]: retourne la $n$ième puissance de $value$
+\item[ - \textbf{fibonacci}(int $n$)]: retourne la $n$ième valeur de \href{https://en.wikipedia.org/wiki/Fibonacci_number}{Fibonacci}
+\item[ - \textbf{search}(int $value$, int $array[\rceil$, int size)]: retourne l'index de $value$ dans $array$
+\item[ - \textbf{allEvens}(int $evens[\rceil$, int $array[\rceil$, int $evenSize$, int $arraySize$)]: rempli $evens$ avec tous les nombres paires de $array$. $evenSize$ représente le nombre de valeur dans $evens$ (est donc égale à 0 au début) et $arraySize$ est le nombre de valeur dans $array$. 
+\item[ - \textbf{mandelbrot}(vec2 z, vec2 point, int n)]: retourne vrai si le point appartient à l'ensemble de \href{https://en.wikipedia.org/wiki/Mandelbrot_set}{Mandelbrot} pour la fonction $f(z) \rightarrow z^2 + point$. Un point n'appartient pas à cet ensemble si la suite $z_n$ est bornée, autrement-dit s'il existe un $i<n$ tel que $|z_i|>2$. \textbf{Attention}, $z$ est un complexe, autrement-dit il représente un réel et un imaginaire $x + iy$ et donc $z^2=(x+iy)^2$. Posez le calcul et déterminer le nouveau réel et le nouvel imaginaire.
+\end{itemize}
+\vspace{1cm}
+Implémenter une structure DynaTableau et une structure Liste avec les comportements suivants:
+\begin{itemize}
+\item[ - \textbf{ajoute}(int $valeur$)]: Ajoute une nouvelle valeur à la fin de la structure (alloue de la mémoire en plus si nécessaire)
+\item[ - \textbf{recupere}(int $n$)]: Retourne le $n$ième entier de la structure
+\item[ - \textbf{cherche}(int $valeur$)]: Retourne l'index de $valeur$ dans la structure ou -1 s'il n'existe pas
+\item[ - \textbf{stocke}(int $n$, int $valeur$)]: Redéfini la $n$ième valeur de la structure avec $valeur$
+\end{itemize}
+\vspace{1cm}
+Ajouter des fonctions à la structure de votre choix pour implémenter le comportement d'une Pile et d'une File
+\begin{itemize}
+\item[ - \textbf{pousser\_file}(int $valeur$)]: Ajoute une valeur à la fin ou au début de la structure
+\item[ - \textbf{retirer\_file}()]: Enlève la première valeur ajoutée et la retourne
+\item[ - \textbf{pousser\_pile}(int $valeur$)]: Ajoute une valeur à la fin ou au début de la structure
+\item[ - \textbf{retirer\_pile}()]: Enlève la dernière valeur ajoutée et la retourne
+\end{itemize}
+\subsection{Exercices}
+Déterminer la complexité minimum $\Omega$ et maximum $O$ des algorithmes suivantes:
+
+\begin{center}
+\begin{algorithm}
+\caption{Insertion Sort}\label{insertion_sort}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{t} $\Leftarrow $ tableau de $n$ nombre aléatoire
+    \State \textit{sorted} $\Leftarrow $ tableau de $n$ -1
+    \ForAll{indice \textit{i} de \textit{t}}
+    	\State \textit{insertionIndex} $\Leftarrow$ 0
+		\While{$\textit{sorted[insertionIndex]} \geq 0$ et $\textit{t[i]} \geq \textit{sorted[insertionIndex]}$}
+			\State $\textit{insertionIndex} \Leftarrow \textit{insertionIndex} + 1$
+		\EndWhile
+		\State \textit{sorted}.insert(\textit{insertionIndex}, \textit{t[i]})
+	\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{String Distance}\label{string_distance}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{s1} $\Leftarrow $ chaine de n caractère
+    \State \textit{s2} $\Leftarrow $ chaine de m caractère
+    \State \textit{i} $\Leftarrow 1$
+    \State \textit{distance} $\Leftarrow 0$
+    \While{$i < m - 1 $ et $i < n - 1$}
+		\State \textit{cost1} $\Leftarrow abs(\textit{s1[i]} - \textit{s2[i]})$
+		\State \textit{cost2} $\Leftarrow abs(\textit{s1[i]} - \textit{s2[i - 1]})$
+		\State \textit{cost3} $\Leftarrow abs(\textit{s1[i]} - \textit{s2[i + 1]})$
+		\State \textit{distance} $\Leftarrow \textit{distance} + min(\textit{cos1}, \textit{cos2}, \textit{cos3})$
+	\EndWhile
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+\newpage
+\begin{center}
+\begin{algorithm}
+\caption{Binary Search}\label{binary_search}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{t} $\Leftarrow $ tableau de $n$ nombre aléatoire triés
+    \State \textit{toSearch} $\Leftarrow $ nombre à chercher
+    \State \textit{start} $\Leftarrow $ 0
+    \State \textit{end} $\Leftarrow n$
+    \While{$\textit{start} <= \textit{end}$}
+    	\State \textit{mid} $\Leftarrow \frac{\textit{start} + \textit{end}}{2}$
+		\If{$\textit{toSearch} > t[\textit{mid}]$}
+			\State \textit{start} $\Leftarrow \textit{mid}$
+		\ElsIf{$\textit{toSearch} < t[\textit{mid}]$}
+			\State \textit{end} $\Leftarrow \textit{mid}$
+		\Else
+			\State \textit{foundIndex} $\Leftarrow \textit{mid}$
+		\EndIf
+	\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{Search All}\label{search all}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{t} $\Leftarrow $ tableau de $n$ nombre aléatoire triés
+    \State \textit{toSearch} $\Leftarrow $ nombre à chercher
+    \State \textit{start} $\Leftarrow $ 0
+    \State \textit{end} $\Leftarrow n$
+    \While{$\textit{start} <= \textit{end}$}
+    	\State \textit{mid} $\Leftarrow \frac{\textit{start} + \textit{end}}{2}$
+		\If{$\textit{toSearch} > \textit{t[mid]}$}
+			\State \textit{start} $\Leftarrow \textit{mid}$
+		\Else
+			\State \textit{end} $\Leftarrow \textit{mid}$	
+		\EndIf
+	\EndWhile
+	\If{$\textit{t[start+1]} == \textit{toSearch}$}
+		\State \textit{iMin} $\Leftarrow \textit{start+1}$
+		\State \textit{i} $\Leftarrow \textit{iMin}$
+		\While{$\textit{t[i]} == \textit{toSearch}$}
+			\State \textit{i} $\Leftarrow \textit{i} + 1$
+		\EndWhile
+		\State \textit{iMax} $\Leftarrow \textit{i} - 1$
+	\Else
+		\State \textit{iMin} $\Leftarrow -1$
+		\State \textit{iMax} $\Leftarrow -1$
+	\EndIf
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+
+\newpage
+\begin{center}
+\begin{algorithm}
+\caption{Binary Sort}\label{binary_sort}
+\begin{algorithmic} % enter the algorithmic environment
+    \State \textit{t} $\Leftarrow $ tableau de $n$ nombre aléatoire
+    \State \textit{sorted} $\Leftarrow $ tableau vide
+    \ForAll{indice \textit{i} de \textit{t}}
+    	\State \textit{sorted}.insert(binarySearch(\textit{sorted}, \textit{t[i]}), \textit{t[i]})
+    \EndFor
+\end{algorithmic}
+\end{algorithm}
+\end{center}
+\end{document}
